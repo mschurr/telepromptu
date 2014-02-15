@@ -5,6 +5,13 @@
 # Files for the Dalvik VM
 *.dex
 
+# Python Bytecode
+*.pyc
+
+# Configuration Secrets
+client_secrets.json
+appengine_config.py
+
 # Java class files
 *.class
 
