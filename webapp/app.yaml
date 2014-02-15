@@ -15,6 +15,9 @@ threadsafe: yes
 builtins:
 - remote_api: on
 
+inbound_services:
+- channel_presence
+
 # Handlers define how to route requests to your application.
 handlers:
 
