@@ -11,7 +11,8 @@ PNG_API = "https://docs.google.com/presentation/d/%(id)s/export/png?id=%(id)s&pa
 
 class GDParser(HTMLParser):
     pageidregex = re.compile(r'pageid=(.+?)&')
-    regex1 = re.compile(r'background: url\((.+)\);')
+    regex1 = re.compile(r'background\-image: url\((.+)\);')
+
     def __init__ (self, driveid):
         self.driveid = driveid
         self.pageids = []
@@ -19,6 +20,7 @@ class GDParser(HTMLParser):
         self.notes = []
         self.noteson = False
         self.reset()
+
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
         if tag == 'section':
@@ -26,7 +28,10 @@ class GDParser(HTMLParser):
                 stylestr = attrs['style']
                 url = HTMLParser().unescape(GDParser.regex1.search(stylestr).group(1))
                 pageid = GDParser.pageidregex.search(url).group(1)
-                imgurl = 'https://docs.google.com/presentation/d/%s/export/png?id=%s&pageid=%s' % (self.driveid, self.driveid, pageid)
+                imgurl = PNG_API % {
+                    "id" : self.driveid,
+                    "slideid" : pageid
+                }
                 self.pageids.append(pageid)
                 self.imgurls.append(imgurl)
                 self.notes.append('')
@@ -34,11 +39,14 @@ class GDParser(HTMLParser):
             if attrs.get('class', '') == 'slide-notes':
                 self.curaccum = ''
                 self.noteson = True
+
     def handle_endtag(self, tag):
         pass
+
     def handle_data(self, data):
         if self.noteson:
             self.notes[-1] += HTMLParser().unescape(data) + ' '
+
     def get_slides(self):
         ret = []
         for i in range(len(self.pageids)):
@@ -57,10 +65,10 @@ class GoogleDrivePresentation:
             return None
 
         # Parse HTML Code
-
-        
-
-        # Return
+        html = content.splitlines()[-1]
+        parser = GDParser(self.id)
+        parser.feed(html)
+        slides = parser.get_slides()
         return slides
 
     def get_html_url(self):
