@@ -1,4 +1,4 @@
-package com.google.android.glass.sample.stopwatch;
+package com.telepromptu;
 
 import java.util.ArrayList;
 

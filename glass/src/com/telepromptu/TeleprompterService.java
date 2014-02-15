@@ -1,4 +1,4 @@
-package com.google.android.glass.sample.stopwatch;
+package com.telepromptu;
 
 import com.google.android.glass.timeline.LiveCard;
 import com.google.android.glass.timeline.TimelineManager;
@@ -8,12 +8,8 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-import android.speech.RecognizerIntent;
 import android.util.Log;
-import android.widget.FrameLayout;
-import android.widget.ListView;
 import android.widget.RemoteViews;
-import android.widget.TextView;
 
 public class TeleprompterService extends Service {
 

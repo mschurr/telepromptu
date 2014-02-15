@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.glass.sample.stopwatch;
+package com.telepromptu;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -51,8 +51,8 @@ public class MenuActivity extends Activity {
         // Handle item selection.
         switch (item.getItemId()) {
             case R.id.stop:
-                stopService(new Intent(this, TeleprompterService.class));
-//                stopService(new Intent(this, PresentationService.class));
+//                stopService(new Intent(this, TeleprompterService.class));
+                stopService(new Intent(this, PresentationService.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

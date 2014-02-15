@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.glass.sample.stopwatch;
+package com.telepromptu;
 
 import android.content.Context;
 import android.graphics.Canvas;
