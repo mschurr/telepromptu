@@ -28,6 +28,7 @@ from oauth2client.appengine import StorageByKeyName
 from oauth2client.appengine import simplejson as json
 from webapp2_extras import sessions
 from gaesessions import get_current_session
+from drive_presentation import GoogleDrivePresentation
 import logging
 import webapp2
 import httplib2
@@ -137,44 +138,103 @@ class OAuth2CallbackHandler(webapp2.RequestHandler):
         return self.redirect('/')
 
 #############################################
-# Main Page
+# Controller Assistant
 #############################################
 
-class MainHandler(webapp2.RequestHandler):
-    def get(self):
+class BaseHandler(webapp2.RequestHandler):
+    def __init__(self, request, response):
+        super(BaseHandler, self).__init__(request, response)
+
+    def get_drive(self):
         session = get_current_session()
         userid = session.get('userid')
 
         if not userid:
-            self.response.out.write('not logged in (no session)')
-            return
+            logging.info('AUTH_FAIL: NO SESSION')
+            return None
 
         credentials = StorageByKeyName(models.UserCredentials, userid, 'credentials').get()
         
         if not credentials:
-            self.response.out.write('not logged in (no credentials)')
-            return
+            logging.info('AUTH_FAIL: NO CREDENTIALS')
+            return None
 
-        #drive = DriveCommunicator(credentials)
+        drive = DriveCommunicator(credentials)
+        return drive
 
-        #self.response.out.write(drive.files())
-        self.response.out.write('logged in')
+    def remove_auth(self):
+        session = get_current_session()
+        del session['userid']
+
+
 
 #############################################
 # List Presentations Page
 #############################################
 
-class PresentationsHandler(webapp2.RequestHandler):
+class MainHandler(BaseHandler):
     def get(self):
-        pass
+        try:
+            drive = self.get_drive()
+
+            if drive == None:
+                return self.redirect('/oauth')
+
+            files = drive.files()
+
+            for f in files:
+                if f['mimeType'] == 'application/vnd.google-apps.presentation':
+                    text = "<a href=\"%s\">%s</a> <img src=\"%s\" /><br />" % (
+                        '/presentation?id='+f['id'],
+                        f['title'], 
+                        f['thumbnailLink']
+                    )
+                    self.response.out.write(text)
+        except errors.HttpError, error:
+            return self.remove_auth()
+        except AccessTokenRefreshError, error:
+            return self.remove_auth()
 
 #############################################
 # View Presentation Page
 #############################################
 
-class PresentationHandler(webapp2.RequestHandler):
-    def get(self, id):
-        pass
+class PresentationHandler(BaseHandler):
+    def get(self):
+        id = self.request.get('id')
+
+        if not id:
+            self.abort('404')
+            return
+
+        drive = self.get_drive()
+        pres = GoogleDrivePresentation(drive, id)
+
+        slidethumb = self.request.get('slidethumb')
+        if slidethumb:
+            pres.thumbnail(self, slidethumb)
+            return
+
+        html = """
+        <script type="text/javascript" src="/static/jquery-1.11.0.min.js"></script>
+        <script type="text/javascript" src="%(javascript)s"></script>
+        <iframe src="https://docs.google.com/presentation/d/%(id)s/preview"
+                id="gdpresentation"
+                frameborder="0" 
+                width="960" 
+                height="569" 
+                allowfullscreen="true" 
+                mozallowfullscreen="true" 
+                webkitallowfullscreen="true">
+        </iframe>
+        %(debug)s
+        """
+
+        self.response.out.write(html % {
+                "id" : id,
+                "javascript" : "/static/main.js",
+                "debug" : str(pres.get_data())
+            })
 
 #############################################
 # Routes
@@ -182,8 +242,7 @@ class PresentationHandler(webapp2.RequestHandler):
 
 app = webapp2.WSGIApplication([
     webapp2.Route('/', MainHandler),
-    webapp2.Route('/presentations', PresentationsHandler),
-    webapp2.Route('/presentation/id', PresentationHandler),
+    webapp2.Route('/presentation', PresentationHandler),
     webapp2.Route('/oauth', OAuth2Handler),
     webapp2.Route('/oauth2callback', OAuth2CallbackHandler)
 ], debug=True)
