@@ -204,10 +204,15 @@ class PresentationHandler(BaseHandler):
         id = self.request.get('id')
 
         if not id:
-            self.abort('404')
+            self.abort(404)
             return
 
         drive = self.get_drive()
+
+        if not drive:
+            self.abort(403)
+            return
+
         pres = GoogleDrivePresentation(drive, id)
 
         slidethumb = self.request.get('slidethumb')
@@ -216,8 +221,38 @@ class PresentationHandler(BaseHandler):
             return
 
         html = """
+        <!DOCTYPE HTML><html><head></head><body>
         <script type="text/javascript" src="/static/jquery-1.11.0.min.js"></script>
+        <script type="text/javascript" src="/_ah/channel/jsapi"></script>
         <script type="text/javascript" src="%(javascript)s"></script>
+        <script>
+            channel = new goog.appengine.Channel('%(channel)s');
+            socket = channel.open();
+            socket.onopen = function(){
+            };
+            socket.onmessage = function(message){
+                /*alert("Data Received: " + message.data);*/
+                var data = JSON.parse(message.data);
+                if(data.action == "changeSlide") {
+                    $("#gdpresentation")[0].src = "https://docs.google.com/presentation/d/%(id)s/preview#slide=id."+data.slideid;
+                }
+            };
+            socket.onerror = function(error){
+                alert("Link Failed!");
+            };
+            socket.onclose = function(){
+            };
+            socket.sendMessage = function(path, opt_param) {
+              path += '?g=' + state.game_key;
+              if (opt_param) {
+                path += '&' + opt_param;
+              }
+              var xhr = new XMLHttpRequest();
+              xhr.open('POST', path, true);
+              xhr.send();
+            };
+
+        </script>
         <iframe src="https://docs.google.com/presentation/d/%(id)s/preview"
                 id="gdpresentation"
                 frameborder="0" 
@@ -228,13 +263,48 @@ class PresentationHandler(BaseHandler):
                 webkitallowfullscreen="true">
         </iframe>
         %(debug)s
+        </body></html>
         """
+
+        channel_token = channel.create_channel(id)
 
         self.response.out.write(html % {
                 "id" : id,
                 "javascript" : "/static/main.js",
-                "debug" : str(pres.get_data())
+                "debug" : str(pres.get_data()),
+                "channel" : channel_token
             })
+
+#############################################
+# Channel: Browser to Server
+#############################################
+
+def UpdateSlide(driveid, slideid):
+    channel.send_message(
+        driveid,
+        json.dumps({
+                "action" : "changeSlide",
+                "slideid" : slideid
+            })
+    )
+
+#############################################
+# Channel: Browser to Server
+#############################################
+
+#############################################
+# Channel: Glass to Server
+#############################################
+
+# Transfer slide data
+
+# Listen for slide changes
+
+#############################################
+# Push: Server to Glass
+#############################################
+
+# Let glass know when a new presentation is available
 
 #############################################
 # Routes
