@@ -51,7 +51,7 @@ public class MenuActivity extends Activity {
         // Handle item selection.
         switch (item.getItemId()) {
             case R.id.stop:
-                stopService(new Intent(this, StopwatchService.class));
+                stopService(new Intent(this, PresentationService.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

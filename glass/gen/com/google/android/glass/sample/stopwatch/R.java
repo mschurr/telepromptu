@@ -21,14 +21,16 @@ public final class R {
     }
     public static final class id {
         public static final int centi_second=0x7f0a0002;
+        public static final int current_text=0x7f0a0004;
         public static final int minute=0x7f0a0000;
         public static final int second=0x7f0a0001;
         public static final int seconds_view=0x7f0a0003;
-        public static final int stop=0x7f0a0004;
+        public static final int stop=0x7f0a0005;
     }
     public static final class layout {
         public static final int card_chronometer=0x7f030000;
         public static final int card_countdown=0x7f030001;
+        public static final int card_speech_recognition=0x7f030002;
     }
     public static final class menu {
         public static final int stopwatch=0x7f090000;
