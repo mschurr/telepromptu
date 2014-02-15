@@ -15,7 +15,7 @@
 -->
 
 <resources>
-    <string name="app_name">StopWatch</string>
-    <string name="start_stopwatch">start a teleprompter</string>
+    <string name="app_name">Telepromptu</string>
+    <string name="start_stopwatch">give a speech</string>
     <string name="stop">Stop</string>
 </resources>

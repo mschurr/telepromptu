@@ -22,7 +22,6 @@ import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.SystemClock;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.View;
 
