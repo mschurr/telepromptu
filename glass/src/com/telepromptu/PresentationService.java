@@ -58,9 +58,10 @@ public class PresentationService extends Service {
 	        
             Intent speechIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);        
             speechIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-            speechIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,"voice.recognition.test");
+            speechIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,this.getPackageName());
             speechIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,1);
             speechRecognizer.startListening(speechIntent);
+            
             mLiveCard.publish(PublishMode.REVEAL);
             Log.d(TAG, "Done publishing LiveCard");
         } else {
@@ -92,6 +93,7 @@ public class PresentationService extends Service {
 		@Override
 		public void onBeginningOfSpeech() {
 			updateText("Starting speech");
+        	Log.d(TAG, "Starting speech");
 		}
 
 		@Override
@@ -120,9 +122,11 @@ public class PresentationService extends Service {
 
 		@Override
 		public void onResults(Bundle results) {
+        	Log.d(TAG, "onResult of speech");
 			ArrayList<String> data = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
 			if(data.size() > 0) {
 				updateText(data.get(0));
+	        	Log.d(TAG, data.get(0));
 			}
 		}
 
