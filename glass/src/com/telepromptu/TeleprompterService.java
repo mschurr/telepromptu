@@ -47,12 +47,11 @@ public class TeleprompterService extends Service {
     private TimelineManager mTimelineManager;
     private LiveCard mLiveCard;
     private SpeechRecognizer speechRecognizer;
-    private Context context;
+    private Intent speechIntent;
     
     @Override
     public void onCreate() {
         super.onCreate();
-        this.context = context;
         mTimelineManager = TimelineManager.from(this);
     }
 
@@ -88,6 +87,10 @@ public class TeleprompterService extends Service {
 
     @Override
     public void onDestroy() {
+        if(speechIntent != null) {
+        	stopService(speechIntent);        	
+        }
+        stopListening();
         if (mLiveCard != null && mLiveCard.isPublished()) {
             Log.d(TAG, "Unpublishing LiveCard");
             if (mCallback != null) {
@@ -96,7 +99,6 @@ public class TeleprompterService extends Service {
             mLiveCard.unpublish();
             mLiveCard = null;
         }
-        speechRecognizer.destroy();
         super.onDestroy();
     }
     
@@ -138,8 +140,28 @@ public class TeleprompterService extends Service {
 		}
 
 		@Override
-		public void onError(int arg0) {
-        	Log.d(TAG, "onError on Listening");
+		public void onError(int errorCode) {
+			switch (errorCode) {
+			case 1:
+				Log.e(TAG, "Network timeout");
+				stopListening();
+				startListening();
+				break;
+			case 2:
+				Log.e(TAG, "No internet connection found.");
+				break;
+			case 5:
+				Log.d(TAG, "Generic error.");
+				break;
+			case 7:
+				Log.d(TAG, "No match found.");
+				stopListening();
+				startListening();
+				break;
+			default:
+				Log.d(TAG, "onError on Listening : "+errorCode);
+				break;
+			}
 		}
 
 		@Override
