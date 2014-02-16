@@ -16,7 +16,18 @@
 
 package com.telepromptu;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+
 import com.google.android.glass.timeline.LiveCard;
 import com.google.android.glass.timeline.LiveCard.PublishMode;
 import com.google.android.glass.timeline.TimelineManager;
@@ -54,7 +65,10 @@ public class TeleprompterService extends Service {
     public void onCreate() {
         super.onCreate();
         mTimelineManager = TimelineManager.from(this);
+        
+        
     }
+    
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -64,6 +78,7 @@ public class TeleprompterService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
     	super.onStartCommand(intent, flags, startId);
+    	Log.d(TAG, intent.toUri(0));
         if (mLiveCard == null) {
             Log.d(TAG, "Publishing LiveCard");
             mLiveCard = mTimelineManager.createLiveCard(LIVE_CARD_TAG);
@@ -82,14 +97,82 @@ public class TeleprompterService extends Service {
             // TODO(alainv): Jump to the LiveCard when API is available.
         }
         
-        String text = "Hello! Here is a sample text that I will speak through. Hoping that Google Glass will recognize my voice. And scroll the text along as if I were speaking in a teleprompter. This text should be long enough to demonstrate this feature. I really want to go to sleep right now." +
-        		"Rice University is a pretty awesome place but I really don't care right now because I am sleep deprived. It feels ridiculous to speak slowly when I really want to yell at the top of my lungs.";
+        String presentationId = "1VkYAnSokGCLiSHs33v7VTYttHaWPvmuLFIFNS5FudY4";
+        connect("http://telepromptu.appspot.com/glass?id=" + presentationId);
+        
+        String text = "Hi! My name is Waseem Ahmad! I'm a senior studying computer science at Rice University. Today, I'm going to demonstrate an application that my team has created called Telepromptu. It is a Google Glass application that serves as a live automatic teleprompter. The application uses speech recognition to get snippets of text from Google Speech recognition API. Because the speech to text recognition is not fully accurate, our application uses a local subsequence alignment algorithm to match the recognized text with text on the teleprompter.";
+        
         
         mCallback.mTeleprompterView.setText(text);
         speechTraverser = new SuperSpeechTraverser(text);
         startListening();
 
         return START_STICKY;
+    }
+    
+    public void connect(String url)
+    {
+
+        HttpClient httpclient = new DefaultHttpClient();
+
+        // Prepare a request object
+        Log.d(TAG, "Executing get request");
+        HttpGet httpget = new HttpGet(url); 
+
+        // Execute the request
+        HttpResponse response;
+        try {
+            response = httpclient.execute(httpget);
+            // Examine the response status
+            Log.i("Praeda",response.getStatusLine().toString());
+
+            // Get hold of the response entity
+            HttpEntity entity = response.getEntity();
+            // If the response does not enclose an entity, there is no need
+            // to worry about connection release
+
+            if (entity != null) {
+
+                // A Simple JSON Response Read
+                InputStream instream = entity.getContent();
+                String result= convertStreamToString(instream);
+                // now you have the string representation of the HTML request
+                instream.close();
+                Log.d(TAG, result);
+
+            }
+
+
+        } catch (Exception e) {
+        	e.printStackTrace();
+        }
+    }
+
+        private static String convertStreamToString(InputStream is) {
+        /*
+         * To convert the InputStream to String we use the BufferedReader.readLine()
+         * method. We iterate until the BufferedReader return null which means
+         * there's no more data to read. Each line will appended to a StringBuilder
+         * and returned as String.
+         */
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        StringBuilder sb = new StringBuilder();
+
+        String line = null;
+        try {
+            while ((line = reader.readLine()) != null) {
+                sb.append(line + "\n");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                is.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return sb.toString();
     }
 
     @Override
@@ -195,10 +278,15 @@ public class TeleprompterService extends Service {
 	        	Log.d(TAG, data.get(0));
 	        	speechTraverser.inputSpeech(text);
 	        	int lastWordNumber = speechTraverser.getCurrentWord();
+	        	int numCharacters = 0;
+	        	for (String w : speechTraverser.getWords().subList(0, lastWordNumber)) {
+	        		numCharacters += w.length();
+	        	}
+	        	numCharacters = Math.max(numCharacters - 15, 0);
 	        	String lastWordSpoken = speechTraverser.getCurrentWordString();
 	        	Log.d(TAG, "Last word number: " + lastWordNumber + " spoken: " + lastWordSpoken);
 	        	TeleprompterView tView = mCallback.mTeleprompterView;
-	        	int lineNumber = tView.lineNumberFor(lastWordNumber);
+	        	int lineNumber = tView.lineNumberFor(numCharacters);
 	        	Log.d(TAG, "Line number: " + lineNumber);
 
 	        	mCallback.mTeleprompterView.scrollToLineNumber(lineNumber);

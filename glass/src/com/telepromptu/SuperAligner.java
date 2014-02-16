@@ -182,7 +182,7 @@ public class SuperAligner
 		}
 	}
 
-	public ArrayList<String> stringToWords(String prompt) {
+	public static ArrayList<String> stringToWords(String prompt) {
 		String[] words = prompt.replaceAll("[^a-zA-Z0-9 ]", "").toLowerCase().split("\\s+");
 		ArrayList<String> wordList = new ArrayList<String>();
 		for(int i = 0; i < words.length; i++)
