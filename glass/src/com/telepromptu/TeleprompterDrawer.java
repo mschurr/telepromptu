@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
  * SurfaceHolder.Callback used to draw the chronometer on the timeline LiveCard.
  */
 public class TeleprompterDrawer implements SurfaceHolder.Callback {
-    private static final String TAG = "TeleprompterDrawer";
+    private static final String TAG = "ChronometerDrawer";
 
     private static final long SEC_TO_MILLIS = TimeUnit.SECONDS.toMillis(1);
     private static final int SOUND_PRIORITY = 1;

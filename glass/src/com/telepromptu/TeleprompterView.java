@@ -19,11 +19,14 @@ package com.telepromptu;
 import android.content.Context;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.text.method.ScrollingMovementMethod;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -43,10 +46,8 @@ public class TeleprompterView extends FrameLayout {
 
     // About 24 FPS.
     private static final long DELAY_MILLIS = 41;
-
-    private final TextView mMinuteView;
-    private final TextView mSecondView;
-    private final TextView mCentiSecondView;
+    
+    private final TextView mTextView;
 
     private boolean mStarted;
     private boolean mForceStart;
@@ -67,13 +68,24 @@ public class TeleprompterView extends FrameLayout {
 
     public TeleprompterView(Context context, AttributeSet attrs, int style) {
         super(context, attrs, style);
-        LayoutInflater.from(context).inflate(R.layout.card_chronometer, this);
+        LayoutInflater.from(context).inflate(R.layout.card_teleprompter, this);
 
-        mMinuteView = (TextView) findViewById(R.id.minute);
-        mSecondView = (TextView) findViewById(R.id.second);
-        mCentiSecondView = (TextView) findViewById(R.id.centi_second);
+        mTextView = (TextView) findViewById(R.id.teleprompter_linear);
+        mTextView.setText("Hello World! Testing Testing One Two Three YOLO HASHTAG YODO. In a real life situation this text is going to be really long and we wan't to make sure that this textview can handle this endless flow of text by allowing scrolling. Why does the python version have a Metaphone version that returns a list. Now the text is so long that it doesn't fit on the single textview. We must do something about this.");
+        mTextView.setMovementMethod(new ScrollingMovementMethod());
+        
+        (new Timer()).schedule(new TimerTask() {
+        	public void run() {
+        		scrollDownBy(5);
+        	}
+        }, 5000);
+
 
         setBaseMillis(SystemClock.elapsedRealtime());
+    }
+    
+    public void scrollDownBy(int numLines) {
+        mTextView.scrollBy(0, mTextView.getLineHeight() * numLines);
     }
 
     /**
@@ -137,7 +149,6 @@ public class TeleprompterView extends FrameLayout {
         updateRunning();
     }
 
-
     private final Handler mHandler = new Handler();
 
     private final Runnable mUpdateTextRunnable = new Runnable() {
@@ -164,7 +175,7 @@ public class TeleprompterView extends FrameLayout {
             mRunning = running;
         }
     }
-
+    
     /**
      * Update the value of the chronometer.
      */
@@ -173,11 +184,8 @@ public class TeleprompterView extends FrameLayout {
         // Cap chronometer to one hour.
         millis %= TimeUnit.HOURS.toMillis(1);
 
-        mMinuteView.setText(String.format("%02d", TimeUnit.MILLISECONDS.toMinutes(millis)));
         millis %= TimeUnit.MINUTES.toMillis(1);
-        mSecondView.setText(String.format("%02d", TimeUnit.MILLISECONDS.toSeconds(millis)));
         millis = (millis % TimeUnit.SECONDS.toMillis(1)) / 10;
-        mCentiSecondView.setText(String.format("%02d", millis));
         if (mChangeListener != null) {
             mChangeListener.onChange();
         }
