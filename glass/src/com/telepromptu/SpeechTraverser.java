@@ -48,6 +48,18 @@ public class SpeechTraverser {
 	 * @param recognizedText the text received from the speech recognition software
 	 */
 	public void inputSpeech(String recognizedText) {
+		int rL = recognizedText.length();
+		String bestMatch = "";
+		int bestScore = 0;
+		// Iterate through possible speech string lengths sL
+		for (int sL = Math.max(1,rL-2); sL < rL+2; sL++) {
+			
+			// Iterate through speech positions p
+			for (int p = Math.max(currentWord - 10, 0); p < Math.min(words.size() - 1, currentWord + 10); p++) {
+				
+			}
+			
+		}
 	}
 	
 
