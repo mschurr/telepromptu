@@ -1,4 +1,4 @@
-package com.telepromptu;
+//package com.telepromptu;
 
 import org.apache.commons.codec.language.Soundex;
 import org.apache.commons.codec.EncoderException;
@@ -150,7 +150,7 @@ public class SuperAligner
 		int smax_j = 0;
 
 		for(int i = 0; i < m; i ++) {
-			for(int j = 0; j < m; j++) {
+			for(int j = 0; j < n; j++) {
 				this.pairwise_matrix_cell(i, j, a, b, s, p);
 
 				if(s[i][j] > smax) {
@@ -164,7 +164,7 @@ public class SuperAligner
 			}
 		}
 
-		Traceback traceback = this.pairwise_traceback(smax_i, smax_j, a, b, s, p, "local");
+		Traceback trace = this.pairwise_traceback(smax_i, smax_j, a, b, s, p, "local");
 		ArrayList<String> xprime = trace.xprime;
 		ArrayList<String> yprime = trace.yprime;
 
@@ -173,6 +173,21 @@ public class SuperAligner
 		alignment.yprime = yprime;
 		alignment.score = smax;
 		return alignment;
+	}
+
+	public void printAlignment(Alignment alignment)
+	{
+		for(int i = 0; i < alignment.xprime.size(); i++) {
+			System.out.format("%1$30s %2$30s\n", alignment.xprime.get(i), alignment.yprime.get(i));
+		}
+	}
+
+	public ArrayList<String> stringToWords(String prompt) {
+		String[] words = prompt.replaceAll("[^a-zA-Z0-9 ]", "").toLowerCase().split("\\s+");
+		ArrayList<String> wordList = new ArrayList<String>();
+		for(int i = 0; i < words.length; i++)
+			wordList.add(words[i]);
+		return wordList;
 	}
 
 	public static void main(String[] args)

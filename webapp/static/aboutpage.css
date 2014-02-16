@@ -232,7 +232,10 @@ a img{
   display:block;
 }
 
-
+.body_text p{
+  margin-left: 4%;
+  margin-right: 4%;
+}
 
 
 
@@ -241,27 +244,95 @@ a img{
 #mainwrapper {  
   font: 10pt normal Arial, sans-serif;  
   height: auto;  
-  margin: 80px auto 0 auto;  
+  /*margin: 80px auto 0 auto;  */
   text-align: center;  
   width: 100%;  
 }  
 
 #mainwrapper .box {  
-    border: 2px solid #fff;  
+    /*border: 1px solid #E0E0E0;*/
+
     cursor: pointer;  
-    height: 300px;  
+    height: 500px;  
     float: left;  
     
     position: relative;  
     overflow: hidden;  
     width: 200px;  
-    -webkit-box-shadow: 1px 1px 1px 1px #ccc;  
-    -moz-box-shadow: 1px 1px 1px 1px #ccc;  
-    box-shadow: 1px 1px 1px 1px #ccc;  
+    /*-webkit-box-shadow: 1px 1px 1px 1px #ccc;  
+    -moz-box-shadow: 1px 1px 1px 1px #ccc;  */
+    /*box-shadow: 1px 1px 1px 1px #ccc;  */
 }  
+
+
  
- #mainwrapper .box-1{
-  left:20px;
+ #mainwrapper #box-1{
+
+  position:absolute;
+  left:10%;
+
+  right:60px;
+ }
+
+span.text-content{
+  position:absolute;
+  font-size: 15px;
+  left:-3px;
+  bottom:20px;
+  height:150px;
+  width:200px;
+  opacity:0;
+  font-family:"Montserrat;
+
+}
+
+span.text-content1{
+  position:absolute;
+  font-size: 15px;
+  left:8px;
+  bottom:20px;
+  height:150px;
+  width:200px;
+  opacity:0;
+}
+
+span.text-content2{
+  position:absolute;
+  font-size: 15px;
+  left:8px;
+  bottom:20px;
+  height:150px;
+  width:200px;
+  opacity:0;
+}
+
+span.text-content3{
+  position:absolute;
+  font-size: 15px;
+  left:8px;
+  bottom:20px;
+  height:150px;
+  width:200px;
+  opacity:0;
+}
+
+#mainwrapper #box-2{
+  position:relative;
+  left:33%;
+  top:50px
+  right:80px;
+ }
+
+#mainwrapper #box-3{
+  position:absolute;
+  left:56%;
+  top:50px
+  right:60px;
+ }
+
+ #mainwrapper #box-4{
+  position:absolute;
+  left:79%;
   top:50px
   right:60px;
  }
@@ -280,7 +351,7 @@ a img{
 }  
 
 #mainwrapper .box .simple-caption {  
-    margin-top: 30%;
+    margin-top: 130%;
     height: 30px;  
     width: 200px;  
     display: block;  
@@ -290,16 +361,31 @@ a img{
 }
 
 
-#mainwrapper .box:hover .simple-caption {  
+
+
+#mainwrapper .box:hover .simple-caption { 
+
     -moz-transform: translateY(-100%);  
     -o-transform: translateY(-100%);  
     -webkit-transform: translateY(-100%);  
     transform: translateY(-100%);  
 }  
 
- 
+#mainwrapper .box:hover span.text-content{
+  opacity:1;
+}
 
+#mainwrapper .box:hover span.text-content1{
+  opacity:1;
+}
 
+#mainwrapper .box:hover span.text-content2{
+  opacity:1;
+}
+
+#mainwrapper .box:hover span.text-content3{
+  opacity:1;
+}
 
 
 

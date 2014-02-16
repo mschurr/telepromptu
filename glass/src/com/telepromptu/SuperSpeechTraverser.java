@@ -1,9 +1,10 @@
-package com.telepromptu;
+//package com.telepromptu;
 
 import org.apache.commons.codec.language.Soundex;
 import org.apache.commons.codec.EncoderException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * A speech traverser that figures out where in the speech the user is
@@ -16,6 +17,7 @@ public class SuperSpeechTraverser {
 	private ArrayList<String> words;
 	private int currentWord;
 	private Soundex soundex;	
+	private SuperAligner aligner;
 
 	/**
 	 * Initializes the speech traverser.
@@ -23,12 +25,9 @@ public class SuperSpeechTraverser {
 	 */
 	public SuperSpeechTraverser(String content) {
 		this.soundex = new Soundex();
+		this.aligner = new SuperAligner();
 		this.content = content;
-		this.words = new ArrayList<String>();
-		this.currentWord = 0;
-		for (String word : content.split(" ")) {
-			this.words.add(word);
-		}
+		this.words = this.aligner.stringToWords(content);
 	}
 	
 	/**
@@ -46,6 +45,13 @@ public class SuperSpeechTraverser {
 	public int getCurrentWord() {
 		return currentWord;
 	}
+
+	/**
+	 * Gets the string version of the current word.
+	 */
+	public String getCurrentWordString() {
+		return this.words.get(this.currentWord);
+	}
 	
 	/**
 	 * Traverses the model past the text the user just spoke based off of
@@ -53,27 +59,34 @@ public class SuperSpeechTraverser {
 	 * @param recognizedText the text received from the speech recognition software
 	 */
 	public void inputSpeech(String recognizedText) {
-		SuperAligner aligner = new SuperAligner();
+		ArrayList<String> spokenWords = this.aligner.stringToWords(recognizedText);
 
-		ArrayList<String> spokenWords = new ArrayList<String>();
-		for (String word : recognizedText.split(" ")) {
-			spokenWords.add(word);
-		}
-		
 		int idxL = Math.max(0, currentWord - 3);
-		int idxR = Math.min(words.size(), currentWord + spokenWords.size() + 4);
+		int idxR = Math.min(words.size(), currentWord + spokenWords.size() + 6);
 		
-		Alignment alignment = aligner.global_pairwise_alignment(words.subList(idxL, idxR), spokenWords);
-		
-//		for(int i = 0; i < alignment.xprime.size(); i++) {
-//			System.out.format("%s %s\n", alignment.xprime.get(i), alignment.yprime.get(i));
-//		}
+		List<String> matchWords = words.subList(idxL, idxR);
+		Alignment alignment = aligner.global_pairwise_alignment(matchWords, spokenWords);
+		//Alignment alignment = this.aligner.global_pairwise_alignment(this.words, spokenWords);
+		this.aligner.printAlignment(alignment);
 
-		for(int i = alignment.yprime.size() - 1; i >= 0; i--) {
-			if(!alignment.yprime.get(i).equals("-")) {
-				this.currentWord = idxL + i;
-				break;
+		// Find the word...
+		int wordOffset = 0;
+
+		for(int i = 0; i < alignment.xprime.size(); i++) {
+			if(alignment.xprime.get(i).equals("-")) {
+				wordOffset++;
+				continue;
 			}
+
+			if(alignment.yprime.get(i).equals("-"))
+				continue;
+
+			String s1 = this.soundex.encode(alignment.xprime.get(i));
+			String s2 = this.soundex.encode(alignment.yprime.get(i));
+			if(!s1.equals(s2))
+				continue;
+
+			this.currentWord = idxL+i-wordOffset;
 		}
 	}
 }
