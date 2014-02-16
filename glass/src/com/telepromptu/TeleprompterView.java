@@ -19,8 +19,10 @@ package com.telepromptu;
 import android.content.Context;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.text.Layout;
 import android.text.method.ScrollingMovementMethod;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -29,12 +31,15 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
+
 /**
  * View used to display draw a running Chronometer.
  *
  * This code is greatly inspired by the Android's Chronometer widget.
  */
 public class TeleprompterView extends FrameLayout {
+
+	private static String TAG = "TeleprompterView";
 
     /**
      * Interface to listen for changes on the view layout.
@@ -69,16 +74,30 @@ public class TeleprompterView extends FrameLayout {
     public TeleprompterView(Context context, AttributeSet attrs, int style) {
         super(context, attrs, style);
         LayoutInflater.from(context).inflate(R.layout.card_teleprompter, this);
-
-        mTextView = (TextView) findViewById(R.id.teleprompter_linear);
-        mTextView.setText("Hello World! Testing Testing One Two Three YOLO HASHTAG YODO. In a real life situation this text is going to be really long and we wan't to make sure that this textview can handle this endless flow of text by allowing scrolling. Why does the python version have a Metaphone version that returns a list. Now the text is so long that it doesn't fit on the single textview. We must do something about this.");
-        mTextView.setMovementMethod(new ScrollingMovementMethod());
         
+        final String text = "Hello World! Testing Testing One Two Three YOLO HASHTAG YODO. In a real life situation this text is going to be really long and we wan't to make sure that this textview can handle this endless flow of text by allowing scrolling. Why does the python version have a Metaphone version that returns a list. Now the text is so long that it doesn't fit on the single textview. We must do something about this.";
+        
+   		final int offSet = text.indexOf("situation", 0);
+   		Log.d(TAG, "Tag " + offSet);
+
+   		mTextView = (TextView) findViewById(R.id.teleprompter_linear);
+   		mTextView.setText(text);
+   		mTextView.setMovementMethod(new ScrollingMovementMethod());
+
         (new Timer()).schedule(new TimerTask() {
         	public void run() {
         		scrollDownBy(5);
+
+                Layout l = mTextView.getLayout();
+                if (l != null) {
+                	int lineNumber = l.getLineForOffset(offSet);
+                	Log.d(TAG, "Line number " + lineNumber);
+                } else {
+                	Log.d(TAG, "The layout wasn't found");
+                }
         	}
         }, 5000);
+        
 
 
         setBaseMillis(SystemClock.elapsedRealtime());
