@@ -36,7 +36,7 @@ public class TeleprompterDrawer implements SurfaceHolder.Callback {
     private static final long SEC_TO_MILLIS = TimeUnit.SECONDS.toMillis(1);
     private static final int SOUND_PRIORITY = 1;
     private static final int MAX_STREAMS = 1;
-    private static final int COUNT_DOWN_VALUE = 3;
+    private static final int COUNT_DOWN_VALUE = 0;
 
     private final SoundPool mSoundPool;
     private final int mStartSoundId;
