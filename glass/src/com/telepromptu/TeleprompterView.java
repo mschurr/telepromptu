@@ -103,6 +103,26 @@ public class TeleprompterView extends FrameLayout {
         setBaseMillis(SystemClock.elapsedRealtime());
     }
     
+    /**
+     * Returns the line number for the subString specified. 
+     * 
+     * @param subString the substring to search for
+     * @return the line number of the substring specified. -1 if the layout is not found.
+     */
+    public int lineNumberFor(String subString) {
+    	String text = mTextView.getText().toString();
+    	int offSet = text.indexOf(subString);
+    	if (offSet != -1) {
+    		Layout l = mTextView.getLayout();
+    		if (l != null) {
+    			int lineNumber = l.getLineForOffset(offSet);
+    			return lineNumber;
+    		}
+    	}
+    	
+    	return -1;
+    }
+    
     public void scrollDownBy(int numLines) {
         mTextView.scrollBy(0, mTextView.getLineHeight() * numLines);
     }
