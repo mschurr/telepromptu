@@ -50,7 +50,7 @@
     <br><br>
   </div>
   <div>
-    <a href="javascript:;" class="btn">Send to Glass</a>
+    <a href="javascript:sendToGlass('{{ id }}');" class="btn">Send to Glass</a>
     <br /><br /><br /><br />
 
   </div>
@@ -83,6 +83,27 @@
         xhr.open('POST', path, true);
         xhr.send();
       };
+
+      function sendToGlass(id) {
+        $.ajax({
+        url: "/present?id="+id,
+        type: "GET",
+        accepts: "application/json",
+        dataType: "json",
+        async : true,
+        cache: false,
+        timeout: 3000,
+        success: function(data) {
+          /* This function is called if the request is successful with the data as the parameter.
+             We can now call any javascript functions using this data. */
+         
+        },
+        error: function() {
+          /* This function is called if the request fails for some reason (e.g. server goes down or user loses internet connectivity). 
+             You may use this to display an error to your users. */
+        }
+      });
+      }
 
   </script>
 <body>  

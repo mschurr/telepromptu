@@ -37,6 +37,7 @@ import jinja2
 import json
 import os
 import models
+import time
 
 #############################################
 # Configuration
@@ -50,8 +51,8 @@ config = {
         'https://www.googleapis.com/auth/userinfo.profile '
         'https://www.googleapis.com/auth/glass.timeline'
     ),
-    #"oauth2.callback" : "https://telepromptu.appspot.com/oauth2callback"
-    "oauth2.callback" : "http://localhost:8080/oauth2callback"
+    "oauth2.callback" : "https://telepromptu.appspot.com/oauth2callback"
+    #"oauth2.callback" : "http://localhost:8080/oauth2callback"
 }
 
 jinja = jinja2.Environment(
@@ -82,6 +83,7 @@ class DriveCommunicator:
         while True:
             try:
                 param = {}
+                param['q'] = "mimeType = 'application/vnd.google-apps.presentation'"
                 if page_token:
                     param['pageToken'] = page_token
                 files = self.service.files().list(**param).execute()
@@ -246,6 +248,10 @@ class PresentationHandler(BaseHandler):
         pres = GoogleDrivePresentation(drive, id)
         finfo = pres.get_info()
 
+        session = get_current_session()
+        whatever = models.PresentationLink(driveid=id, userid=session['userid'])
+        whatever.put()
+
         slidethumb = self.request.get('slidethumb')
         if slidethumb:
             pres.thumbnail(self, slidethumb)
@@ -337,9 +343,46 @@ def UpdateSlide(driveid, slideid):
 # Channel: Glass to Server
 #############################################
 
-# Transfer slide data
+class GlassDataHandler(BaseHandler):
+    def get(self):
+        try:
+            driveid = self.request.get('id')
 
-# Listen for slide changes
+            if not driveid:
+                return self.abort(401)
+
+            preslink = models.PresentationLink.gql("WHERE driveid = :1", driveid).get()
+            userid = preslink.userid
+
+            if not userid:
+                return self.abort(404)
+
+            credentials = StorageByKeyName(models.UserCredentials, userid, 'credentials').get()
+            
+            if not credentials:
+                return self.abort(403)
+
+            drive = DriveCommunicator(credentials)
+            
+            presentation = GoogleDrivePresentation(drive, driveid)
+
+            self.response.headers['Content-Type'] = 'application/json'
+            self.response.out.write(json.dumps(presentation.get_data()))
+
+        except errors.HttpError, error:
+            return self.remove_auth()
+        except AccessTokenRefreshError, error:
+            return self.remove_auth()
+
+class GlassDataHandlerSlides(BaseHandler):
+    def get(self):
+        driveid = self.request.get('id')
+        slideid = self.request.get('slide')
+
+        if not driveid or not slideid:
+            return self.abort(401)
+
+        UpdateSlide(driveid, slideid)
 
 #############################################
 # Push: Server to Glass
@@ -347,11 +390,17 @@ def UpdateSlide(driveid, slideid):
 
 class PresenterHandler(BaseHandler):
     def get(self):
-        NotifyGlass()
-        self.response.out.write("yolo")
+        driveid = self.request.get('id')
+
+        if not driveid:
+            return self.abort(401)
+
+        NotifyGlass(driveid)
+
+        self.response.out.write('OK')
 
 # Let glass know when a new presentation is available
-def NotifyGlass():
+def NotifyGlass(driveid):
     session = get_current_session()
     userid = session.get('userid')
 
@@ -368,10 +417,25 @@ def NotifyGlass():
     mirror = Service('mirror', 'v1', credentials)
 
     body = {
-      "text": "Telepromptu: a teleprompter for thugs",
+      "id" : "telepromptu-unique-"+str(time.time()),
+      "title" : "Telepromptu",
+      "text": "Telepromptu: You have a new presentation available. Choose the open option to continue.",
       "notification": {
         "level": "DEFAULT"
-      }
+      },
+      "menuItems" : [
+        {
+            "id" : "telepromptu-notification-unique-"+str(time.time()),
+            "action" : "OPEN_URI",
+            "payload" : "http://telepromptu.com/presentation?id=%s" % (driveid),
+            "values" : [
+                {
+                    "state" : "default",
+                    "displayName": "Start Presentation"
+                }
+            ]
+        }
+      ]
     }
 
     mirror.timeline().insert(body=body).execute()
@@ -386,6 +450,8 @@ app = webapp2.WSGIApplication([
     webapp2.Route('/', MainHandler),
     webapp2.Route('/presentation', PresentationHandler),
     webapp2.Route('/presentations', PresentationsHandler),
+    webapp2.Route('/glass', GlassDataHandler),
+    webapp2.Route('/glass-slides', GlassDataHandlerSlides),
     webapp2.Route('/present', PresenterHandler),
     webapp2.Route('/oauth', OAuth2Handler),
     webapp2.Route('/oauth2callback', OAuth2CallbackHandler)
