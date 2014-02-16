@@ -20,13 +20,17 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import com.google.android.glass.timeline.LiveCard;
 import com.google.android.glass.timeline.LiveCard.PublishMode;
@@ -97,22 +101,32 @@ public class TeleprompterService extends Service {
             // TODO(alainv): Jump to the LiveCard when API is available.
         }
         
-        String presentationId = "1VkYAnSokGCLiSHs33v7VTYttHaWPvmuLFIFNS5FudY4";
-        connect("http://telepromptu.appspot.com/glass?id=" + presentationId);
+        (new Thread(new Runnable(){
+
+			@Override
+			public void run() {
+//				String text = "Hi! My name is Waseem Ahmad! I'm a senior studying computer science at Rice University. Today, I'm going to demonstrate an application that my team has created called Telepromptu. It is a Google Glass application that serves as a live automatic teleprompter. The application uses speech recognition to get snippets of text from Google Speech recognition API. Because the speech to text recognition is not fully accurate, our application uses a local subsequence alignment algorithm to match the recognized text with text on the teleprompter.";
+				String presentationId = "1VkYAnSokGCLiSHs33v7VTYttHaWPvmuLFIFNS5FudY4";
+				List<Slide> slides = connect("http://telepromptu.appspot.com/glass?id=" + presentationId);				
+				String text = "";
+				for(Slide slide : slides) {
+					text += slide.notes + " ";
+				}
+				mCallback.mTeleprompterView.setText(text);
+				speechTraverser = new SuperSpeechTraverser(text);
+			}
+        	
+        })).start();
         
-        String text = "Hi! My name is Waseem Ahmad! I'm a senior studying computer science at Rice University. Today, I'm going to demonstrate an application that my team has created called Telepromptu. It is a Google Glass application that serves as a live automatic teleprompter. The application uses speech recognition to get snippets of text from Google Speech recognition API. Because the speech to text recognition is not fully accurate, our application uses a local subsequence alignment algorithm to match the recognized text with text on the teleprompter.";
         
         
-        mCallback.mTeleprompterView.setText(text);
-        speechTraverser = new SuperSpeechTraverser(text);
         startListening();
 
         return START_STICKY;
     }
     
-    public void connect(String url)
+    public List<Slide> connect(String url)
     {
-
         HttpClient httpclient = new DefaultHttpClient();
 
         // Prepare a request object
@@ -136,16 +150,23 @@ public class TeleprompterService extends Service {
                 // A Simple JSON Response Read
                 InputStream instream = entity.getContent();
                 String result= convertStreamToString(instream);
+                Log.d(TAG, result);
                 // now you have the string representation of the HTML request
                 instream.close();
-                Log.d(TAG, result);
-
+                ArrayList<Slide> slides = new ArrayList<Slide>();
+                JSONArray jsonObj = new JSONArray(result);
+                for (int i = 0; i < jsonObj.length(); i++) {
+                	JSONObject s = jsonObj.getJSONObject(i);
+					slides.add(new Slide(s.getString("speaker_notes"),s.getString("page_id"),s.getString("img_url")));
+				}
+                Log.d(TAG, slides.get(0).notes);
+                return slides;
             }
-
 
         } catch (Exception e) {
         	e.printStackTrace();
         }
+        return new ArrayList<Slide>();
     }
 
         private static String convertStreamToString(InputStream is) {
@@ -201,9 +222,9 @@ public class TeleprompterService extends Service {
     		speechIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
     		speechIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,this.getPackageName());
     		speechIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,1);
-    		speechIntent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS,true);
-    		speechIntent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 300000);
-    		speechIntent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 300000);
+//    		speechIntent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS,true);
+//    		speechIntent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 300000);
+//    		speechIntent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 300000);
     		speechRecognizer.startListening(speechIntent);    		
     	}
     }
@@ -300,4 +321,5 @@ public class TeleprompterService extends Service {
 		}
     	
     }
+    
 }
