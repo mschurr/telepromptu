@@ -252,7 +252,7 @@ public class TeleprompterService extends Service {
 			@Override
 			public void run() {
 		        HttpClient httpclient = new DefaultHttpClient();
-				HttpGet httpget = new HttpGet("http://telepromptu.appspot.com/glass?id="+presentationID+"&slide="+slideID); 
+				HttpGet httpget = new HttpGet("http://telepromptu.appspot.com/glass-slides?id="+presentationID+"&slide="+slideID); 
 				// Execute the request
 		        HttpResponse response;
 		        try {
@@ -363,6 +363,8 @@ public class TeleprompterService extends Service {
 	        	
 	        	if (slideToGoTo != currentSlideNum) {
 	        		// Call ChangeSlide function to change to the new slide
+	        		switchSlide(presentationId, slides.get(slideToGoTo).id);
+	        		currentSlideNum = slideToGoTo;
 	        	}
 	        	
 	        	int numCharacters = 0;
