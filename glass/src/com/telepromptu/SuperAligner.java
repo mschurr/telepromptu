@@ -1,8 +1,10 @@
 package com.telepromptu;
+
 import org.apache.commons.codec.language.Soundex;
 import org.apache.commons.codec.EncoderException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class SuperAligner
 {
@@ -90,7 +92,7 @@ public class SuperAligner
     	return traceback;
 	}
 
-	public Alignment global_pairwise_alignment(ArrayList<String> x, ArrayList<String> y)
+	public Alignment global_pairwise_alignment(List<String> x, List<String> y)
 	{
 		ArrayList<String> a = new ArrayList<>();
 		a.add(" ");

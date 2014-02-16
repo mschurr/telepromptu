@@ -38,7 +38,7 @@
         </activity>
 
         <service
-            android:name="com.telepromptu.PresentationService"
+            android:name="com.telepromptu.TeleprompterService"
             android:icon="@drawable/ic_lap"
             android:label="@string/app_name"
             android:enabled="true"
