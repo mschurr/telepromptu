@@ -1,4 +1,5 @@
 package com.telepromptu;
+
 import org.apache.commons.codec.language.Soundex;
 import org.apache.commons.codec.EncoderException;
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ public class SuperSpeechTraverser {
 	 * Initializes the speech traverser.
 	 * @param content The content of the speech that the user will say.
 	 */
-	public SpeechTraverser(String content) {
+	public SuperSpeechTraverser(String content) {
 		this.soundex = new Soundex();
 		this.content = content;
 		this.words = new ArrayList<String>();
@@ -55,15 +56,22 @@ public class SuperSpeechTraverser {
 		SuperAligner aligner = new SuperAligner();
 
 		ArrayList<String> spokenWords = new ArrayList<String>();
-		for (String word : spokenWords.split(" ")) {
+		for (String word : recognizedText.split(" ")) {
 			spokenWords.add(word);
 		}
 		
-		Alignment alignment = aligner.global_pairwise_alignment(this.words, spokenWords);
+		int idxL = Math.max(0, currentWord - 3);
+		int idxR = Math.min(words.size(), currentWord + spokenWords.size() + 4);
+		
+		Alignment alignment = aligner.global_pairwise_alignment(words.subList(idxL, idxR), spokenWords);
+		
+//		for(int i = 0; i < alignment.xprime.size(); i++) {
+//			System.out.format("%s %s\n", alignment.xprime.get(i), alignment.yprime.get(i));
+//		}
 
 		for(int i = alignment.yprime.size() - 1; i >= 0; i--) {
 			if(!alignment.yprime.get(i).equals("-")) {
-				this.currentWord = i;
+				this.currentWord = idxL + i;
 				break;
 			}
 		}
