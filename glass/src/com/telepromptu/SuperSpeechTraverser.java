@@ -1,4 +1,4 @@
-//package com.telepromptu;
+package com.telepromptu;
 
 import org.apache.commons.codec.language.Soundex;
 import org.apache.commons.codec.EncoderException;
