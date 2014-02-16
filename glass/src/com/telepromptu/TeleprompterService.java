@@ -65,6 +65,9 @@ public class TeleprompterService extends Service {
     private Intent speechIntent;
     private SuperSpeechTraverser speechTraverser;
     private List<Slide> slides;
+    private ArrayList<Integer> slideWords = new ArrayList<Integer>();
+    private Integer currentSlideNum = 0;
+    private String presentationId = "1VkYAnSokGCLiSHs33v7VTYttHaWPvmuLFIFNS5FudY4";
     
     @Override
     public void onCreate() {
@@ -107,7 +110,6 @@ public class TeleprompterService extends Service {
 			@Override
 			public void run() {
 //				String text = "Hi! My name is Waseem Ahmad! I'm a senior studying computer science at Rice University. Today, I'm going to demonstrate an application that my team has created called Telepromptu. It is a Google Glass application that serves as a live automatic teleprompter. The application uses speech recognition to get snippets of text from Google Speech recognition API. Because the speech to text recognition is not fully accurate, our application uses a local subsequence alignment algorithm to match the recognized text with text on the teleprompter.";
-				String presentationId = "1VkYAnSokGCLiSHs33v7VTYttHaWPvmuLFIFNS5FudY4";
 				slides = connect("http://telepromptu.appspot.com/glass?id=" + presentationId);				
 				String text = "";
 				for(Slide slide : slides) {
@@ -159,6 +161,10 @@ public class TeleprompterService extends Service {
                 for (int i = 0; i < jsonObj.length(); i++) {
                 	JSONObject s = jsonObj.getJSONObject(i);
 					slides.add(new Slide(s.getString("speaker_notes"),s.getString("page_id"),s.getString("img_url")));
+					Slide slide = slides.get(i);
+					String notes = slide.notes;
+					SuperSpeechTraverser tmpTraverser = new SuperSpeechTraverser(notes);
+					slideWords.add(tmpTraverser.getWords().size());  // record the length of the parsed words
 				}
                 Log.d(TAG, slides.get(0).notes);
                 return slides;
@@ -300,6 +306,21 @@ public class TeleprompterService extends Service {
 	        	Log.d(TAG, data.get(0));
 	        	speechTraverser.inputSpeech(text);
 	        	int lastWordNumber = speechTraverser.getCurrentWord();
+	        	int lastSlideWordCount = 0;
+	        	int slideToGoTo = 0;
+	        	for (int i = 0; i < slideWords.size(); i++) {
+	        		int slideWordCount = slideWords.get(i);
+	        		if ((lastSlideWordCount + slideWordCount) > lastWordNumber) {
+	        			break;
+	        		}
+	        		lastSlideWordCount += slideWordCount;
+	        		slideToGoTo += 1;
+	        	}
+	        	
+	        	if (slideToGoTo != currentSlideNum) {
+	        		// Call ChangeSlide function to change to the new slide
+	        	}
+	        	
 	        	int numCharacters = 0;
 	        	for (String w : speechTraverser.getWords().subList(0, lastWordNumber)) {
 	        		numCharacters += w.length();
