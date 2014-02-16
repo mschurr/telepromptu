@@ -12,6 +12,12 @@ public class SequenceAligner
 	{
 		this.x = x;
 		this.y = y;
+		/*this.x = new String[x.length+1];
+		this.y = new String[y.length+1];
+		this.x[0] = null;
+		this.y[0] = null;
+		System.arraycopy(x,0,this.x,1,x.length);
+		System.arraycopy(y,0,this.y,1,y.length);*/
 		this.scorer = scorer;
 	}
 
@@ -65,45 +71,34 @@ public class SequenceAligner
 		int i = this.x.length;
 		int j = this.y.length;
 
-		while(i > 0 || j > 0) {
+		while(i != 0 && j != 0) {
+			System.out.format("%d %d\n",i,j);
 			// UP
-			if(X[i][j] == X[i-1][j] + this.scorer.score()) {
+			if(score[i][j] == score[i-1][j] + this.scorer.score(this.x[i],null)) {
 				stringX.add(this.x[i]);
 				stringY.add(null);
 				i -= 1;
+				continue;
 			}
 
 			// LEFT
-			if(X[i][j] == X[i][j-1] + this.scorer.score()) {
+			if(score[i][j] == score[i][j-1] + this.scorer.score(null, this.y[j])) {
 				stringX.add(null);
 				stringY.add(this.y[j]);
 				j -= 1;
+				continue;
 			}
 
 			// UPPER LEFT
-			if(X[i][j] == X[i-1][j-1] + this.scorer.score()) {
+			if(score[i][j] == score[i-1][j-1] + this.scorer.score(this.x[i], this.y[j])) {
 				stringX.add(this.x[i]);
 				stringY.add(this.y[j]);
 				i -= 1;
 				j -= 1;
+				continue;
 			}
 		}
-		/*
-		0 (left), 45 (upper left), or 90 (up)
-        if P[i][j] == 45:
-            Xprime = X[i] + Xprime        #Align A[i] with B[j] and traverse to the upper-left cell
-            Yprime = Y[j] + Yprime
-            i-=1
-            j-=1
-        elif P[i][j] == 90:
-            Xprime = X[i] + Xprime        #Align A[i] with a dash, and traverse to the left cell
-            Yprime = '-' + Yprime
-            i-=1
-        elif P[i][j] == 0:
-            Xprime = '-' + Xprime
-            Yprime = Y[j] + Yprime        #Align B[j] with a dash, and traverse to the upper cell
-            j-=1
-		*/
+		
 		System.out.println(stringX);
 		System.out.println(stringY);
 	}
