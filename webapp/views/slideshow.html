@@ -1,0 +1,88 @@
+<!DOCTYPE HTML>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <title>{{ title }}</title>
+  <link href="/static/style.css" type="text/css" rel="stylesheet" media="screen,projection" />
+  <link href="http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+  <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400' rel='stylesheet' type='text/css'>
+
+  <link href="//fonts.googleapis.com/css?family=Lato:100italic,100,300italic,300,400italic,400,700italic,700,900italic,900" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" type="text/css" href="/static/slideshow.css">
+  <link href='http://fonts.googleapis.com/css?family=Archivo+Narrow' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.4.2/pure-min.css">
+  <!-- Montserrat Sans -->
+  <link href='http://fonts.googleapis.com/css?family=Montserrat:400, 700' rel='stylesheet' type='text/css'>        
+  <link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono' rel='stylesheet' type='text/css'>
+
+</head>
+<body style="background-color:#303030">
+	<div class="container" style="vertical-align: baseline; background-image: none;">
+    <div class="navbar">
+      <a class="menu" href="javascript:;"><i class="icon-align-justify"></i></a>
+      <a class="link" href="/">
+        <span class="active"><span class="valign"><span class="vertical">HOME</span></span></span>
+        <span class="hover"><span class="valign"><span class="vertical">HOME</span></span></span>
+      </a>
+      <a class="link" href="/about">
+        <span class="active"><span class="valign"><span class="vertical">ABOUT</span></span></span>
+        <span class="hover"><span class="valign"><span class="vertical">ABOUT</span></span></span>
+      </a>
+      <a class="link" href="/contact">
+        <span class="active"><span class="valign"><span class="vertical">CONTACT</span></span></span>
+        <span class="hover"><span class="valign"><span class="vertical">CONTACT</span></span></span>
+      </a>
+     </div>
+
+  <div class="body_text">
+    <br>
+
+    <span class="glass_title">{{ file['title'] }}</span>
+    <span class="glass_desc">To start presenting, click &quot;Send to Glass&quot; and full screen the presentation. In order for this to work,<br />  you must link your Glass to your Google Account and install the native app.</span>
+    <iframe src="https://docs.google.com/presentation/d/{{id}}/preview"
+                id="gdpresentation"
+                frameborder="0" 
+                width="960" 
+                height="569" 
+                allowfullscreen="true" 
+                mozallowfullscreen="true" 
+                webkitallowfullscreen="true">
+        </iframe>
+    <br><br>
+  </div>
+  <div>
+    <a href="javascript:;" class="btn">Send to Glass</a>
+    <br /><br /><br /><br />
+
+  </div>
+
+  <script type="text/javascript" src="/static/jquery-1.11.0.min.js"></script>
+  <script type="text/javascript" src="/_ah/channel/jsapi"></script>
+  <script>
+      channel = new goog.appengine.Channel('{{channel}}');
+      socket = channel.open();
+      socket.onopen = function(){
+      };
+      socket.onmessage = function(message){
+          /*alert("Data Received: " + message.data);*/
+          var data = JSON.parse(message.data);
+          if(data.action == "changeSlide") {
+              $("#gdpresentation")[0].src = "https://docs.google.com/presentation/d/{{id}}/preview#slide=id."+data.slideid;
+          }
+      };
+      socket.onerror = function(error){
+          alert("Link Failed!");
+      };
+      socket.onclose = function(){
+      };
+      socket.sendMessage = function(path, opt_param) {
+        path += '?g=' + state.game_key;
+        if (opt_param) {
+          path += '&' + opt_param;
+        }
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', path, true);
+        xhr.send();
+      };
+
+  </script>
+<body>  

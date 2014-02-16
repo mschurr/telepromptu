@@ -29,6 +29,7 @@ from oauth2client.appengine import simplejson as json
 from webapp2_extras import sessions
 from gaesessions import get_current_session
 from drive_presentation import GoogleDrivePresentation
+import jinja2
 import logging
 import webapp2
 import httplib2
@@ -46,11 +47,17 @@ config = {
     "drive.scopes" : (
         'https://www.googleapis.com/auth/drive.readonly '
         'https://www.googleapis.com/auth/userinfo.email '
-        'https://www.googleapis.com/auth/userinfo.profile'
+        'https://www.googleapis.com/auth/userinfo.profile '
+        'https://www.googleapis.com/auth/glass.timeline'
     ),
     #"oauth2.callback" : "https://telepromptu.appspot.com/oauth2callback"
     "oauth2.callback" : "http://localhost:8080/oauth2callback"
 }
+
+jinja = jinja2.Environment(
+    loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
+    extensions=['jinja2.ext.autoescape'],
+    autoescape=True)
 
 #############################################
 # Google API Service Functions
@@ -135,7 +142,7 @@ class OAuth2CallbackHandler(webapp2.RequestHandler):
         session['userid'] = userid
 
         # Redirect
-        return self.redirect('/')
+        return self.redirect('/presentations')
 
 #############################################
 # Controller Assistant
@@ -167,12 +174,28 @@ class BaseHandler(webapp2.RequestHandler):
         del session['userid']
 
 
-
 #############################################
 # List Presentations Page
 #############################################
 
 class MainHandler(BaseHandler):
+    def get(self):
+        try:
+            template = jinja.get_template('views/index.html')
+            self.response.write(template.render({
+                    "title" : "Home - Telepromtu"
+                }))
+
+        except errors.HttpError, error:
+            return self.remove_auth()
+        except AccessTokenRefreshError, error:
+            return self.remove_auth()
+
+#############################################
+# List Presentations Page
+#############################################
+
+class PresentationsHandler(BaseHandler):
     def get(self):
         try:
             drive = self.get_drive()
@@ -181,15 +204,22 @@ class MainHandler(BaseHandler):
                 return self.redirect('/oauth')
 
             files = drive.files()
+            pres = []
 
             for f in files:
                 if f['mimeType'] == 'application/vnd.google-apps.presentation':
-                    text = "<a href=\"%s\">%s</a> <img src=\"%s\" /><br />" % (
-                        '/presentation?id='+f['id'],
-                        f['title'], 
-                        f['thumbnailLink']
-                    )
-                    self.response.out.write(text)
+                    pres.append({
+                            "title" : f['title'],
+                            "thumbnail" : f['thumbnailLink'],
+                            "id" : f['id']
+                        })
+
+            template = jinja.get_template('views/presentations.html')
+            self.response.write(template.render({
+                    "title" : "Presentations - Telepromtu",
+                    "files" : pres
+                }))
+
         except errors.HttpError, error:
             return self.remove_auth()
         except AccessTokenRefreshError, error:
@@ -214,6 +244,7 @@ class PresentationHandler(BaseHandler):
             return
 
         pres = GoogleDrivePresentation(drive, id)
+        finfo = pres.get_info()
 
         slidethumb = self.request.get('slidethumb')
         if slidethumb:
@@ -268,12 +299,22 @@ class PresentationHandler(BaseHandler):
 
         channel_token = channel.create_channel(id)
 
-        self.response.out.write(html % {
+        template = jinja.get_template('views/slideshow.html')
+        self.response.write(template.render({
+                "title" : "%s - Telepromtu" % finfo['title'],
+                "id" : id,
+                "channel" : channel_token,
+                "file" : finfo
+            }))
+
+        """self.response.out.write(html % {
                 "id" : id,
                 "javascript" : "/static/main.js",
                 "debug" : str(pres.get_data()),
                 "channel" : channel_token
-            })
+            })"""
+
+        
 
 #############################################
 # Channel: Browser to Server
@@ -304,7 +345,38 @@ def UpdateSlide(driveid, slideid):
 # Push: Server to Glass
 #############################################
 
+class PresenterHandler(BaseHandler):
+    def get(self):
+        NotifyGlass()
+        self.response.out.write("yolo")
+
 # Let glass know when a new presentation is available
+def NotifyGlass():
+    session = get_current_session()
+    userid = session.get('userid')
+
+    if not userid:
+        logging.info('AUTH_FAIL: NO SESSION')
+        return None
+
+    credentials = StorageByKeyName(models.UserCredentials, userid, 'credentials').get()
+    
+    if not credentials:
+        logging.info('AUTH_FAIL: NO CREDENTIALS')
+        return None
+
+    mirror = Service('mirror', 'v1', credentials)
+
+    body = {
+      "text": "Telepromptu: a teleprompter for thugs",
+      "notification": {
+        "level": "DEFAULT"
+      }
+    }
+
+    mirror.timeline().insert(body=body).execute()
+
+    logging.info("dispatched message to %s", userid)
 
 #############################################
 # Routes
@@ -313,6 +385,8 @@ def UpdateSlide(driveid, slideid):
 app = webapp2.WSGIApplication([
     webapp2.Route('/', MainHandler),
     webapp2.Route('/presentation', PresentationHandler),
+    webapp2.Route('/presentations', PresentationsHandler),
+    webapp2.Route('/present', PresenterHandler),
     webapp2.Route('/oauth', OAuth2Handler),
     webapp2.Route('/oauth2callback', OAuth2CallbackHandler)
 ], debug=True)
