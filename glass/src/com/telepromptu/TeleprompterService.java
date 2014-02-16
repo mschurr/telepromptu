@@ -243,6 +243,50 @@ public class TeleprompterService extends Service {
     	}
     }
     
+    public void switchSlide(String presentationId, String slideId) {
+    	Log.d(TAG, "Changing slide "+slideId);
+    	final String presentationID = presentationId;
+    	final String slideID = slideId;
+    	(new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+		        HttpClient httpclient = new DefaultHttpClient();
+				HttpGet httpget = new HttpGet("http://telepromptu.appspot.com/glass?id="+presentationID+"&slide="+slideID); 
+				// Execute the request
+		        HttpResponse response;
+		        try {
+		            response = httpclient.execute(httpget);
+		            // Examine the response status
+		            Log.i("Praeda",response.getStatusLine().toString());
+
+		            // Get hold of the response entity
+		            HttpEntity entity = response.getEntity();
+		            // If the response does not enclose an entity, there is no need
+		            // to worry about connection release
+
+		            if (entity != null) {
+
+		                // A Simple JSON Response Read
+		                InputStream instream = entity.getContent();
+		                String result= convertStreamToString(instream);
+		                if (result != null && result.length() > 0) {
+		                	Log.d(TAG, "Slide changed.");
+		                } else {
+		                	Log.d(TAG, "Slide not changed.");
+		                }
+		                // now you have the string representation of the HTML request
+		                instream.close();
+		            }
+
+		        } catch (Exception e) {
+		        	e.printStackTrace();
+		        }
+			
+			}
+		})).start();
+    }
+    
 
     private class DictationListener implements RecognitionListener {
 
