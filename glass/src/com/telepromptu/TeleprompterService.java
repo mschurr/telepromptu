@@ -31,6 +31,8 @@ import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.util.Log;
 
+
+
 /**
  * Service owning the LiveCard living in the timeline.
  */
