@@ -64,6 +64,7 @@ public class TeleprompterService extends Service {
     private SpeechRecognizer speechRecognizer;
     private Intent speechIntent;
     private SuperSpeechTraverser speechTraverser;
+    private List<Slide> slides;
     
     @Override
     public void onCreate() {
@@ -107,7 +108,7 @@ public class TeleprompterService extends Service {
 			public void run() {
 //				String text = "Hi! My name is Waseem Ahmad! I'm a senior studying computer science at Rice University. Today, I'm going to demonstrate an application that my team has created called Telepromptu. It is a Google Glass application that serves as a live automatic teleprompter. The application uses speech recognition to get snippets of text from Google Speech recognition API. Because the speech to text recognition is not fully accurate, our application uses a local subsequence alignment algorithm to match the recognized text with text on the teleprompter.";
 				String presentationId = "1VkYAnSokGCLiSHs33v7VTYttHaWPvmuLFIFNS5FudY4";
-				List<Slide> slides = connect("http://telepromptu.appspot.com/glass?id=" + presentationId);				
+				slides = connect("http://telepromptu.appspot.com/glass?id=" + presentationId);				
 				String text = "";
 				for(Slide slide : slides) {
 					text += slide.notes + " ";
