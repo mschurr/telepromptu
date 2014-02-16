@@ -82,7 +82,7 @@ a {
   color: #fff;  
   margin: 0 10px;
 }
-.btn {
+.btn, .btn1, .btn2{
   box-sizing:border-box;
    -moz-box-sizing:border-box;
    -webkit-box-sizing:border-box;
@@ -219,28 +219,6 @@ a {
 	background-color: #3030303;
 }
 
-.body_text img{
-  /*margin-left: -50%;
-  margin-bottom: 10px;*/
-
-}
-a img{
-  display:hello;
-}
-
-.body_text a: hover img{
-  display:block;
-}
-
-.body_text p{
-  margin-left: 4%;
-  margin-right: 4%;
-}
-
-
-
-
-
 #mainwrapper {  
   font: 10pt normal Arial, sans-serif;  
   height: auto;  
@@ -264,25 +242,207 @@ a img{
     /*box-shadow: 1px 1px 1px 1px #ccc;  */
 }  
 
+#mainwrapper #box-1 .btn{
+  /*height:40px;
+  position:relative;
+  left:30%;
+  top:400px;*/
+  margin-left: -3px;
+  position:relative;
+  margin-top: 10%;
+  height:40px;
+  background-color: #e55647;
+  box-shadow: none;
+  background-image: url(glyphicons_003_user.png);
+  background-position: center;
+  background-repeat: no-repeat;
+  -webkit-border-radius: 30px;
+}
+
+#mainwrapper #box-1 .btn1{
+  /*margin-left: 20%;*/
+  position:relative;
+  margin-top: 10%;
+  height:40px;
+  background-color: #e55647;
+  box-shadow: none;
+  background-image: url(glyphicons_010_envelope.png);
+  background-position: center;
+  background-repeat: no-repeat;
+  -webkit-border-radius: 30px;
+}
+
+#mainwrapper #box-1 .btn2{
+
+ /* margin-left: 10%;*/
+  height:40px;
+  background-color: #e55647;
+  box-shadow: none;
+  background-image: url(glyphicons_357_suitcase.png);
+  background-position: center;
+  background-repeat: no-repeat;
+  -webkit-border-radius: 30px;
+}
+
+#mainwrapper #box-2 .btn{
+  /*height:40px;
+  position:relative;
+  left:30%;
+  top:400px;*/
+  margin-left: -3px;
+  position:relative;
+  margin-top: 10%;
+  height:40px;
+  background-color: #e55647;
+  box-shadow: none;
+  background-image: url(glyphicons_003_user.png);
+  background-position: center;
+  background-repeat: no-repeat;
+  -webkit-border-radius: 30px;
+}
+
+#mainwrapper #box-2 .btn1{
+  /*margin-left: 20%;*/
+  position:relative;
+  margin-top: 10%;
+  height:40px;
+  background-color: #e55647;
+  box-shadow: none;
+  background-image: url(glyphicons_010_envelope.png);
+  background-position: center;
+  background-repeat: no-repeat;
+  -webkit-border-radius: 30px;
+}
+
+#mainwrapper #box-2 .btn2{
+
+ /* margin-left: 10%;*/
+  height:40px;
+  background-color: #e55647;
+  box-shadow: none;
+  background-image: url(glyphicons_357_suitcase.png);
+  background-position: center;
+  background-repeat: no-repeat;
+  -webkit-border-radius: 30px;
+}
+
+
+
+#mainwrapper #box-3 .btn{
+  /*height:40px;
+  position:relative;
+  left:30%;
+  top:400px;*/
+  margin-left: 7px;
+  position:relative;
+  margin-top: 10%;
+  height:40px;
+  background-color: #e55647;
+  box-shadow: none;
+  background-image: url(glyphicons_003_user.png);
+  background-position: center;
+  background-repeat: no-repeat;
+  -webkit-border-radius: 30px;
+}
+
+#mainwrapper #box-3 .btn1{
+  /*margin-left: 20%;*/
+  position:relative;
+  margin-top: 10%;
+  height:40px;
+  background-color: #e55647;
+  box-shadow: none;
+  background-image: url(glyphicons_010_envelope.png);
+  background-position: center;
+  background-repeat: no-repeat;
+  -webkit-border-radius: 30px;
+}
+
+#mainwrapper #box-3 .btn2{
+
+ /* margin-left: 10%;*/
+  height:40px;
+  background-color: #e55647;
+  box-shadow: none;
+  background-image: url(glyphicons_357_suitcase.png);
+  background-position: center;
+  background-repeat: no-repeat;
+  -webkit-border-radius: 30px;
+}
+
+
+
+#mainwrapper #box-4 .btn{
+  /*height:40px;
+  position:relative;
+  left:30%;
+  top:400px;*/
+  margin-left: 7px;
+  position:relative;
+  margin-top: 10%;
+  height:40px;
+  background-color: #e55647;
+  box-shadow: none;
+  background-image: url(glyphicons_003_user.png);
+  background-position: center;
+  background-repeat: no-repeat;
+  -webkit-border-radius: 30px;
+}
+
+#mainwrapper #box-4 .btn1{
+  /*margin-left: 20%;*/
+  position:relative;
+  margin-top: 10%;
+  height:40px;
+  background-color: #e55647;
+  box-shadow: none;
+  background-image: url(glyphicons_010_envelope.png);
+  background-position: center;
+  background-repeat: no-repeat;
+  -webkit-border-radius: 30px;
+}
+
+#mainwrapper #box-4 .btn2{
+
+ /* margin-left: 10%;*/
+  height:40px;
+  background-color: #e55647;
+  box-shadow: none;
+  background-image: url(glyphicons_357_suitcase.png);
+  background-position: center;
+  background-repeat: no-repeat;
+  -webkit-border-radius: 30px;
+}
+
+
+
 
  
  #mainwrapper #box-1{
 
   position:absolute;
   left:10%;
-
   right:60px;
  }
 
+ /*#mainwrapper #box-1 .btn button{
+  background-image: url('glyphicons_010_envelope.png');
+
+ }*/
+
+ /*#mainwrapper #box-1 .btn button{
+  background-image: url('glyphicons_010_envelope.png');
+
+ }
+*/
 span.text-content{
   position:absolute;
   font-size: 15px;
-  left:-3px;
-  bottom:20px;
+  left:10px;
+  bottom:-20px;
   height:150px;
   width:200px;
-  opacity:0;
-  font-family:"Montserrat;
+  
 
 }
 
@@ -290,30 +450,30 @@ span.text-content1{
   position:absolute;
   font-size: 15px;
   left:8px;
-  bottom:20px;
+  bottom:-20px;
   height:150px;
   width:200px;
-  opacity:0;
+  
 }
 
 span.text-content2{
   position:absolute;
   font-size: 15px;
   left:8px;
-  bottom:20px;
+  bottom:-20px;
   height:150px;
   width:200px;
-  opacity:0;
+ 
 }
 
 span.text-content3{
   position:absolute;
   font-size: 15px;
   left:8px;
-  bottom:20px;
+  bottom:-20px;
   height:150px;
   width:200px;
-  opacity:0;
+ 
 }
 
 #mainwrapper #box-2{
@@ -360,32 +520,6 @@ span.text-content3{
     text-align: center;  
 }
 
-
-
-
-#mainwrapper .box:hover .simple-caption { 
-
-    -moz-transform: translateY(-100%);  
-    -o-transform: translateY(-100%);  
-    -webkit-transform: translateY(-100%);  
-    transform: translateY(-100%);  
-}  
-
-#mainwrapper .box:hover span.text-content{
-  opacity:1;
-}
-
-#mainwrapper .box:hover span.text-content1{
-  opacity:1;
-}
-
-#mainwrapper .box:hover span.text-content2{
-  opacity:1;
-}
-
-#mainwrapper .box:hover span.text-content3{
-  opacity:1;
-}
 
 
 
