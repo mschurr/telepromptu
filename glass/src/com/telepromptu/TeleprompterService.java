@@ -23,6 +23,7 @@ import com.google.android.glass.timeline.TimelineManager;
 
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -46,12 +47,12 @@ public class TeleprompterService extends Service {
     private TimelineManager mTimelineManager;
     private LiveCard mLiveCard;
     private SpeechRecognizer speechRecognizer;
-
+    private Context context;
+    
     @Override
     public void onCreate() {
         super.onCreate();
-        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);       
-        speechRecognizer.setRecognitionListener(new DictationListener());
+        this.context = context;
         mTimelineManager = TimelineManager.from(this);
     }
 
@@ -101,13 +102,23 @@ public class TeleprompterService extends Service {
     
 
     private void startListening() {
-    	speechRecognizer.stopListening();
-        Intent speechIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);        
-        speechIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        speechIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,this.getPackageName());
-        speechIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,1);
-        speechIntent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS,true);
-        speechRecognizer.startListening(speechIntent);
+    	if (speechRecognizer == null) {
+    		speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);       
+    		speechRecognizer.setRecognitionListener(new DictationListener());
+    		Intent speechIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);        
+    		speechIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+    		speechIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,this.getPackageName());
+    		speechIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,1);
+    		speechIntent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS,true);
+    		speechRecognizer.startListening(speechIntent);    		
+    	}
+    }
+    
+    private void stopListening() {
+    	if (speechRecognizer != null) {
+    		speechRecognizer.stopListening(); 
+    		speechRecognizer = null;
+    	}
     }
     
 
@@ -127,7 +138,9 @@ public class TeleprompterService extends Service {
 		}
 
 		@Override
-		public void onError(int arg0) {}
+		public void onError(int arg0) {
+        	Log.d(TAG, "onError on Listening");
+		}
 
 		@Override
 		public void onEvent(int arg0, Bundle results) {}
@@ -148,6 +161,8 @@ public class TeleprompterService extends Service {
 			if(data.size() > 0) {
 	        	Log.d(TAG, data.get(0));
 			}
+			stopListening();
+			startListening();
 		}
 
 		@Override
