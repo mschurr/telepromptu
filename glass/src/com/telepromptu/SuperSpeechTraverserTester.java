@@ -1,3 +1,5 @@
+package com.telepromptu;
+
 import java.util.ArrayList;
 
 public class SuperSpeechTraverserTester

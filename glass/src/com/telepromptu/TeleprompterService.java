@@ -48,6 +48,7 @@ public class TeleprompterService extends Service {
     private LiveCard mLiveCard;
     private SpeechRecognizer speechRecognizer;
     private Intent speechIntent;
+    private SuperSpeechTraverser speechTraverser;
     
     @Override
     public void onCreate() {
@@ -80,6 +81,12 @@ public class TeleprompterService extends Service {
         } else {
             // TODO(alainv): Jump to the LiveCard when API is available.
         }
+        
+        String text = "Hello! Here is a sample text that I will speak through. Hoping that Google Glass will recognize my voice. And scroll the text along as if I were speaking in a teleprompter. This text should be long enough to demonstrate this feature. I really want to go to sleep right now." +
+        		"Rice University is a pretty awesome place but I really don't care right now because I am sleep deprived. It feels ridiculous to speak slowly when I really want to yell at the top of my lungs.";
+        
+        mCallback.mTeleprompterView.setText(text);
+        speechTraverser = new SuperSpeechTraverser(text);
         startListening();
 
         return START_STICKY;
@@ -139,8 +146,6 @@ public class TeleprompterService extends Service {
 		@Override
 		public void onEndOfSpeech() {
         	Log.d(TAG, "onEndOfSpeech ");
-        	stopListening();
-        	startListening();
 		}
 
 		@Override
@@ -188,11 +193,15 @@ public class TeleprompterService extends Service {
 			if(data.size() > 0) {
 				String text = data.get(0);
 	        	Log.d(TAG, data.get(0));
-	        	if (text.contains("down")) {
-	        		mCallback.mTeleprompterView.scrollToLineNumber(8);
-	        	} else {
-	        		mCallback.mTeleprompterView.scrollToLineNumber(0);
-	        	}
+	        	speechTraverser.inputSpeech(text);
+	        	int lastWordNumber = speechTraverser.getCurrentWord();
+	        	String lastWordSpoken = speechTraverser.getCurrentWordString();
+	        	Log.d(TAG, "Last word number: " + lastWordNumber + " spoken: " + lastWordSpoken);
+	        	TeleprompterView tView = mCallback.mTeleprompterView;
+	        	int lineNumber = tView.lineNumberFor(lastWordNumber);
+	        	Log.d(TAG, "Line number: " + lineNumber);
+
+	        	mCallback.mTeleprompterView.scrollToLineNumber(lineNumber);
 				stopListening();
 				startListening();
 			}

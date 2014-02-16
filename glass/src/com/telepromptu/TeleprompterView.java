@@ -84,14 +84,14 @@ public class TeleprompterView extends FrameLayout {
         super(context, attrs, style);
         LayoutInflater.from(context).inflate(R.layout.card_teleprompter, this);
         
-        final String text = "Hello World! Testing Testing One Two Three YOLO HASHTAG YODO. In a real life situation this text is going to be really long and we wan't to make sure that this textview can handle this endless flow of text by allowing scrolling. Why does the python version have a Metaphone version that returns a list. Now the text is so long that it doesn't fit on the single textview. We must do something about this.";
-        
-   		final int offSet = text.indexOf("situation", 0);
-   		Log.d(TAG, "Tag " + offSet);
+//        final String text = "Hello World! Testing Testing One Two Three YOLO HASHTAG YODO. In a real life situation this text is going to be really long and we wan't to make sure that this textview can handle this endless flow of text by allowing scrolling. Why does the python version have a Metaphone version that returns a list. Now the text is so long that it doesn't fit on the single textview. We must do something about this.";
+//        
+//   		final int offSet = text.indexOf("situation", 0);
+//   		Log.d(TAG, "Tag " + offSet);
 
    		mTextView = (TextView) findViewById(R.id.teleprompter_linear);
-   		mTextView.setText(text);
-   		mTextView.setMovementMethod(new ScrollingMovementMethod());
+   		mTextView.setText("Initial placeholder");
+//   		mTextView.setMovementMethod(new ScrollingMovementMethod());
 
 //        (new Timer()).schedule(new TimerTask() {
 //        	public void run() {
@@ -101,6 +101,10 @@ public class TeleprompterView extends FrameLayout {
         
 
         setBaseMillis(SystemClock.elapsedRealtime());
+    }
+    
+    public void setText(String text) {
+    	mTextView.setText(text);
     }
     
     /**
@@ -141,11 +145,11 @@ public class TeleprompterView extends FrameLayout {
     public void scrollToLineNumber(int lineNum) {
     	int lineHeight = mTextView.getLineHeight();
     	mTextView.scrollTo(0, lineHeight * lineNum);
-    	int yScrollFrom = mTextView.getScrollY();
-    	int yScrollTo = lineHeight * lineNum;
-    	Animation scrollDown = new TranslateAnimation(0, 0, 0, yScrollTo - yScrollFrom);
-    	mTextView.setAnimation(scrollDown);
-    	mTextView.animate();
+//    	int yScrollFrom = mTextView.getScrollY();
+//    	int yScrollTo = lineHeight * lineNum;
+//    	Animation scrollDown = new TranslateAnimation(0, 0, 0, yScrollTo - yScrollFrom);
+//    	mTextView.setAnimation(scrollDown);
+//    	mTextView.animate();
     }
     
     public void scrollDownBy(int numLines) {

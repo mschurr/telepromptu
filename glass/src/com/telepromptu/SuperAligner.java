@@ -131,11 +131,11 @@ public class SuperAligner
 
 	public Alignment local_pairwise_alignment(ArrayList<String> x, ArrayList<String> y)
 	{
-		ArrayList<String> a = new ArrayList<>();
+		ArrayList<String> a = new ArrayList<String>();
 		a.add(" ");
 		a.addAll(x);
 
-		ArrayList<String> b = new ArrayList<>();
+		ArrayList<String> b = new ArrayList<String>();
 		b.add(" ");
 		b.addAll(y);
 
