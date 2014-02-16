@@ -127,6 +127,52 @@ public class SuperAligner
 		return alignment;
 	}
 
+	public Alignment local_pairwise_alignment(ArrayList<String> x, ArrayList<String> y)
+	{
+		ArrayList<String> a = new ArrayList<>();
+		a.add(" ");
+		a.addAll(x);
+
+		ArrayList<String> b = new ArrayList<>();
+		b.add(" ");
+		b.addAll(y);
+
+		int m = a.size();
+		int n = b.size();
+
+		int[][] s = new int[m][n]; // init to zeros
+		int[][] p = new int[m][n]; // init to zeros
+
+		int smax = Integer.MIN_VALUE;
+		int smax_i = 0;
+		int smax_j = 0;
+
+		for(int i = 0; i < m; i ++) {
+			for(int j = 0; j < m; j++) {
+				this.pairwise_matrix_cell(i, j, a, b, s, p);
+
+				if(s[i][j] > smax) {
+					smax = s[i][j];
+					smax_i = i;
+					smax_j = j;
+				}
+
+				if(s[i][j] < 0)
+					s[i][j] = 0;
+			}
+		}
+
+		Traceback traceback = this.pairwise_traceback(smax_i, smax_j, a, b, s, p, "local");
+		ArrayList<String> xprime = trace.xprime;
+		ArrayList<String> yprime = trace.yprime;
+
+		Alignment alignment = new Alignment();
+		alignment.xprime = xprime;
+		alignment.yprime = yprime;
+		alignment.score = smax;
+		return alignment;
+	}
+
 	public static void main(String[] args)
 	{
 		SuperAligner aligner = new SuperAligner();
