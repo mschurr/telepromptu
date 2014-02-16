@@ -48,7 +48,6 @@ public class SpeechTraverser {
 	 * @param recognizedText the text received from the speech recognition software
 	 */
 	public void inputSpeech(String recognizedText) {
-		
 	}
 	
 
