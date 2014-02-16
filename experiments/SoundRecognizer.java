@@ -6,10 +6,14 @@ import java.util.ArrayList;
  */
 public class SoundRecognizer
 {
-	public static final int bufferSize = 1;
+	public final int bufferSize = 5;
+	public final int matchThreshold = 4;
+	public final int wordTolerance = 2;
 
-	protected String prompt;
+	protected String[] prompt;
+	protected String[] buffer;
 	protected SoundRecognitionAlgorithm recognizer;
+	protected int position;
 
 	/**
 	 * Instantiates a new recognizer with the provided prompt.
@@ -17,7 +21,9 @@ public class SoundRecognizer
 	public SoundRecognizer(SoundRecognitionAlgorithm recognizer, String prompt)
 	{
 		this.recognizer = recognizer;
-		this.prompt = prompt;
+		this.position = 0;
+		this.buffer = new String[this.bufferSize];
+		this.prompt = prompt.split("\\s+");
 	}
 
 	/**
@@ -25,13 +31,20 @@ public class SoundRecognizer
 	 */
 	public void feed(String word)
 	{
+		// Shift the buffer left.
+		for(int i = 0; i < this.buffer.length - 1; i++)
+			this.buffer[i] = this.buffer[i+1];
 
+		// Add the word to the end of the buffer.
+		this.buffer[this.buffer.length-1] = word;
+
+		
 	}
 
 	/**
-	 * Returns the prompt text.
+	 * Returns the prompt text as an array of words.
 	 */
-	public String getPrompt()
+	public String[] getPrompt()
 	{
 		return this.prompt;
 	}
@@ -41,7 +54,15 @@ public class SoundRecognizer
 	 */
 	public int getPosition()
 	{
-		return 0;
+		return this.position;
+	}
+
+	/**
+	 * Sets the position in the prompt; useful if you want to backtrack.
+	 */
+	public void setPosition(int position)
+	{
+		this.position = position;
 	}
 
 	/**
@@ -49,6 +70,19 @@ public class SoundRecognizer
 	 */
 	public boolean isFinished()
 	{
-		return false;
+		return this.position >= this.prompt.length;
+	}
+
+	/**
+	 * Prints out the state of the object at a given point.
+	 */
+	public void debug()
+	{
+		System.out.format("----------------------\n");
+		System.out.format("SoundRecognizer Debug\n");
+		System.out.format("prompt=%s\n", java.util.Arrays.toString(this.prompt));
+		System.out.format("buffer=%s\n", java.util.Arrays.toString(this.buffer));
+		System.out.format("pos=%d\n", this.getPosition());
+		System.out.format("finished=%b\n", this.isFinished());
 	}
 }

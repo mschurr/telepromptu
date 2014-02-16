@@ -59,6 +59,10 @@ class GoogleDrivePresentation:
         self.drive = drive
         self.service = drive.service
 
+    def get_info(self):
+        f = self.service.files().get(fileId=self.id).execute()
+        return f
+
     def get_data(self):
         resp, content = self.service._http.request(self.get_html_url())
         if resp.status != 200:
