@@ -93,11 +93,11 @@ public class TeleprompterView extends FrameLayout {
    		mTextView.setText(text);
    		mTextView.setMovementMethod(new ScrollingMovementMethod());
 
-        (new Timer()).schedule(new TimerTask() {
-        	public void run() {
-        		scrollToLineNumber(8);
-        	}
-        }, 5000);
+//        (new Timer()).schedule(new TimerTask() {
+//        	public void run() {
+//        		scrollToLineNumber(8);
+//        	}
+//        }, 5000);
         
 
         setBaseMillis(SystemClock.elapsedRealtime());
@@ -119,6 +119,17 @@ public class TeleprompterView extends FrameLayout {
     			return lineNumber;
     		}
     	}
+    	
+    	return -1;
+    }
+    
+    public int lineNumberFor(int wordNumber) {
+    	Layout l = mTextView.getLayout();
+    	if (l != null) {
+    		return l.getLineForOffset(wordNumber);
+    	}
+    	
+    	Log.d(TAG, "Couldn't find line number for word number " + wordNumber);
     	
     	return -1;
     }

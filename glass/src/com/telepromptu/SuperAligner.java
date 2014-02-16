@@ -64,8 +64,8 @@ public class SuperAligner
 
 	public Traceback pairwise_traceback(int i, int j, ArrayList<String> x, ArrayList<String> y, int[][] s, int[][] p, String mode)
 	{
-		ArrayList<String> xprime = new ArrayList<>();
-		ArrayList<String> yprime = new ArrayList<>();
+		ArrayList<String> xprime = new ArrayList<String>();
+		ArrayList<String> yprime = new ArrayList<String>();
 
 		while((mode.equals("global") && (i != 0 || j != 0)) || (mode.equals("local") && s[i][j] != 0)) {
 			if(p[i][j] == 45) {
@@ -94,11 +94,11 @@ public class SuperAligner
 
 	public Alignment global_pairwise_alignment(List<String> x, List<String> y)
 	{
-		ArrayList<String> a = new ArrayList<>();
+		ArrayList<String> a = new ArrayList<String>();
 		a.add(" ");
 		a.addAll(x);
 
-		ArrayList<String> b = new ArrayList<>();
+		ArrayList<String> b = new ArrayList<String>();
 		b.add(" ");
 		b.addAll(y);
 

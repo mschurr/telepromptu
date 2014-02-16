@@ -107,11 +107,13 @@ public class TeleprompterService extends Service {
     	if (speechRecognizer == null) {
     		speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);       
     		speechRecognizer.setRecognitionListener(new DictationListener());
-    		Intent speechIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);        
+    		Intent speechIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH); 
     		speechIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
     		speechIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,this.getPackageName());
     		speechIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,1);
     		speechIntent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS,true);
+    		speechIntent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 300000);
+    		speechIntent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 300000);
     		speechRecognizer.startListening(speechIntent);    		
     	}
     }
@@ -137,6 +139,8 @@ public class TeleprompterService extends Service {
 		@Override
 		public void onEndOfSpeech() {
         	Log.d(TAG, "onEndOfSpeech ");
+        	stopListening();
+        	startListening();
 		}
 
 		@Override
@@ -160,13 +164,14 @@ public class TeleprompterService extends Service {
 				break;
 			default:
 				Log.d(TAG, "onError on Listening : "+errorCode);
+
 				break;
 			}
 		}
 
 		@Override
 		public void onEvent(int arg0, Bundle results) {}
-
+		
 		@Override
 		public void onPartialResults(Bundle results) {
 			Log.d(TAG, "onPartialResults of speech");
@@ -181,10 +186,16 @@ public class TeleprompterService extends Service {
         	Log.d(TAG, "onResult of speech");
 			ArrayList<String> data = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
 			if(data.size() > 0) {
+				String text = data.get(0);
 	        	Log.d(TAG, data.get(0));
+	        	if (text.contains("down")) {
+	        		mCallback.mTeleprompterView.scrollToLineNumber(8);
+	        	} else {
+	        		mCallback.mTeleprompterView.scrollToLineNumber(0);
+	        	}
+				stopListening();
+				startListening();
 			}
-			stopListening();
-			startListening();
 		}
 
 		@Override

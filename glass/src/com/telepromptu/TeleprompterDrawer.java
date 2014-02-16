@@ -43,7 +43,7 @@ public class TeleprompterDrawer implements SurfaceHolder.Callback {
     private final int mCountDownSoundId;
 
     private final CountDownView mCountDownView;
-    private final TeleprompterView mTeleprompterView;
+    public final TeleprompterView mTeleprompterView;
 
     private long mCurrentTimeSeconds;
     private boolean mCountDownSoundPlayed;
