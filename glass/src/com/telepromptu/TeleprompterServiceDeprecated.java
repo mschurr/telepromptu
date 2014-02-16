@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.RemoteViews;
-import android.widget.TextView;
 
 public class TeleprompterServiceDeprecated extends Service {
 

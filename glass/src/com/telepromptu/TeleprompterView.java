@@ -64,8 +64,6 @@ public class TeleprompterView extends FrameLayout {
     private boolean mForceStart;
     private boolean mVisible;
     private boolean mRunning;
-    private Context context;
-    private SpeechRecognizer speechRecognizer;
     
 
     private long mBaseMillis;
@@ -84,11 +82,6 @@ public class TeleprompterView extends FrameLayout {
         super(context, attrs, style);
         LayoutInflater.from(context).inflate(R.layout.card_teleprompter, this);
         
-        this.context = context;
-        
-        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(context);       
-        speechRecognizer.setRecognitionListener(new DictationListener()); 
-        
         final String text = "Hello World! Testing Testing One Two Three YOLO HASHTAG YODO. In a real life situation this text is going to be really long and we wan't to make sure that this textview can handle this endless flow of text by allowing scrolling. Why does the python version have a Metaphone version that returns a list. Now the text is so long that it doesn't fit on the single textview. We must do something about this.";
         
    		final int offSet = text.indexOf("situation", 0);
@@ -97,8 +90,6 @@ public class TeleprompterView extends FrameLayout {
    		mTextView = (TextView) findViewById(R.id.teleprompter_linear);
    		mTextView.setText(text);
    		mTextView.setMovementMethod(new ScrollingMovementMethod());
-
-   		startListening();
 
         (new Timer()).schedule(new TimerTask() {
         	public void run() {
@@ -243,73 +234,5 @@ public class TeleprompterView extends FrameLayout {
         if (mChangeListener != null) {
             mChangeListener.onChange();
         }
-    }
-    
-
-    private void startListening() {
-    	speechRecognizer.stopListening();
-        Intent speechIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);        
-        speechIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        speechIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, context.getPackageName());
-        speechIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,1);
-        speechRecognizer.startListening(speechIntent);
-    }
-    
-    private class DictationListener implements RecognitionListener {
-
-		@Override
-		public void onBeginningOfSpeech() {
-        	Log.d(TAG, "Starting speech");
-		}
-
-		@Override
-		public void onBufferReceived(byte[] arg0) {
-		}
-
-		@Override
-		public void onEndOfSpeech() {
-        	Log.d(TAG, "onEndOfSpeech");
-	        speechRecognizer.destroy();
-		}
-
-		@Override
-		public void onError(int arg0) {
-		}
-
-		@Override
-		public void onEvent(int arg0, Bundle results) {
-			Log.d(TAG, "onEvent of speech");
-			ArrayList<String> data = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-			if(data.size() > 0) {
-	        	Log.d(TAG, data.get(0));
-			}
-		}
-
-		@Override
-		public void onPartialResults(Bundle results) {
-			Log.d(TAG, "onPartialResults of speech");
-			ArrayList<String> data = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-			if(data.size() > 0) {
-	        	Log.d(TAG, data.get(0));
-			}
-		}
-
-		@Override
-		public void onReadyForSpeech(Bundle arg0) {
-		}
-
-		@Override
-		public void onResults(Bundle results) {
-        	Log.d(TAG, "onResult of speech");
-			ArrayList<String> data = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-			if(data.size() > 0) {
-	        	Log.d(TAG, data.get(0));
-			}
-		}
-
-		@Override
-		public void onRmsChanged(float arg0) {
-		}
-    	
     }
 }

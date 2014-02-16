@@ -16,6 +16,7 @@
 
 package com.telepromptu;
 
+import java.util.ArrayList;
 import com.google.android.glass.timeline.LiveCard;
 import com.google.android.glass.timeline.LiveCard.PublishMode;
 import com.google.android.glass.timeline.TimelineManager;
@@ -23,7 +24,11 @@ import com.google.android.glass.timeline.TimelineManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.IBinder;
+import android.speech.RecognitionListener;
+import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
 import android.util.Log;
 
 /**
@@ -38,10 +43,13 @@ public class TeleprompterService extends Service {
 
     private TimelineManager mTimelineManager;
     private LiveCard mLiveCard;
+    private SpeechRecognizer speechRecognizer;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);       
+        speechRecognizer.setRecognitionListener(new DictationListener());
         mTimelineManager = TimelineManager.from(this);
     }
 
@@ -52,6 +60,7 @@ public class TeleprompterService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+    	super.onStartCommand(intent, flags, startId);
         if (mLiveCard == null) {
             Log.d(TAG, "Publishing LiveCard");
             mLiveCard = mTimelineManager.createLiveCard(LIVE_CARD_TAG);
@@ -69,6 +78,7 @@ public class TeleprompterService extends Service {
         } else {
             // TODO(alainv): Jump to the LiveCard when API is available.
         }
+        startListening();
 
         return START_STICKY;
     }
@@ -83,6 +93,64 @@ public class TeleprompterService extends Service {
             mLiveCard.unpublish();
             mLiveCard = null;
         }
+        speechRecognizer.destroy();
         super.onDestroy();
+    }
+    
+
+    private void startListening() {
+    	speechRecognizer.stopListening();
+        Intent speechIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);        
+        speechIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        speechIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,this.getPackageName());
+        speechIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,1);
+        speechIntent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS,true);
+        speechRecognizer.startListening(speechIntent);
+    }
+    
+
+    private class DictationListener implements RecognitionListener {
+
+		@Override
+		public void onBeginningOfSpeech() {
+        	Log.d(TAG, "Starting speech");
+		}
+
+		@Override
+		public void onBufferReceived(byte[] arg0) {}
+
+		@Override
+		public void onEndOfSpeech() {
+        	Log.d(TAG, "onEndOfSpeech ");
+		}
+
+		@Override
+		public void onError(int arg0) {}
+
+		@Override
+		public void onEvent(int arg0, Bundle results) {}
+
+		@Override
+		public void onPartialResults(Bundle results) {
+			Log.d(TAG, "onPartialResults of speech");
+		}
+
+		@Override
+		public void onReadyForSpeech(Bundle arg0) {
+		}
+
+		@Override
+		public void onResults(Bundle results) {
+        	Log.d(TAG, "onResult of speech");
+			ArrayList<String> data = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+			if(data.size() > 0) {
+	        	Log.d(TAG, data.get(0));
+			}
+		}
+
+		@Override
+		public void onRmsChanged(float arg0) {
+		}
+    	
     }
 }
