@@ -24,6 +24,8 @@ import android.text.method.ScrollingMovementMethod;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
@@ -86,15 +88,7 @@ public class TeleprompterView extends FrameLayout {
 
         (new Timer()).schedule(new TimerTask() {
         	public void run() {
-        		scrollDownBy(5);
-
-                Layout l = mTextView.getLayout();
-                if (l != null) {
-                	int lineNumber = l.getLineForOffset(offSet);
-                	Log.d(TAG, "Line number " + lineNumber);
-                } else {
-                	Log.d(TAG, "The layout wasn't found");
-                }
+        		scrollToLineNumber(8);
         	}
         }, 5000);
         
@@ -121,6 +115,20 @@ public class TeleprompterView extends FrameLayout {
     	}
     	
     	return -1;
+    }
+    
+    /**
+     * Scrolls the textview to the specified line number.
+     * @param lineNUm
+     */
+    public void scrollToLineNumber(int lineNum) {
+    	int lineHeight = mTextView.getLineHeight();
+    	mTextView.scrollTo(0, lineHeight * lineNum);
+    	int yScrollFrom = mTextView.getScrollY();
+    	int yScrollTo = lineHeight * lineNum;
+    	Animation scrollDown = new TranslateAnimation(0, 0, 0, yScrollTo - yScrollFrom);
+    	mTextView.setAnimation(scrollDown);
+    	mTextView.animate();
     }
     
     public void scrollDownBy(int numLines) {
